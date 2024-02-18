@@ -35,6 +35,8 @@ public class SpringSsoGoogleApplication {
     public OAuth2User data(@AuthenticationPrincipal OAuth2User oAuth2User){
         return oAuth2User;
     }
+
+    // in this code data1 and data 2 is not working properly but we have to check if the data is comming or not with logger
     @GetMapping("/data1")
     public OAuth2User data1(OAuth2User oAuth2User){
         return oAuth2User;
