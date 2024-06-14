@@ -1,46 +1,37 @@
 package com.javatechie.google.auth;
 
-import okhttp3.*;
-import org.slf4j.Logger;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import okhttp3.OkHttpClient;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.security.Principal;
-import java.util.Map;
 
-@SpringBootApplication
 @RestController
-public class SpringSsoGoogleApplication {
-
-    Logger logger;
+@RequestMapping("/api")
+public class VerificationController {
 
     private final OkHttpClient client = new OkHttpClient();
+
 
     @GetMapping
     public String welcome() {
         return "Welcome to Google !!";
     }
-
-    @PostMapping
-    public String postmethod(){
-        logger.info("Post Mapping Success");
-        return "Post Mapping Successfully ";
-    }
-
-    @PostMapping("/verify")
-    public String verify(@org.springframework.web.bind.annotation.RequestBody VerificationRequest verificationRequest) {
+    @GetMapping("/verify")
+    public String verify(
+            @RequestParam String referenceId,
+            @RequestParam String purpose,
+            @RequestParam String aadhaarNumber) {
 
         System.out.println("Api call successfull");
         MediaType mediaType = MediaType.parse("application/json");
         String jsonBody = "{\"consent\":true," +
-                "\"reference_id\":\"" + verificationRequest.getReferenceId() + "\"," +
-                "\"purpose\":\"" + verificationRequest.getPurpose() + "\"," +
-                "\"aadhaar_number\":\"" + verificationRequest.getAadhaarNumber() + "\"}";
+                "\"reference_id\":\"" + referenceId + "\"," +
+                "\"purpose\":\"" + purpose + "\"," +
+                "\"aadhaar_number\":\"" + aadhaarNumber + "\"}";
 
         RequestBody body = RequestBody.create(jsonBody, mediaType);
 
@@ -56,15 +47,12 @@ public class SpringSsoGoogleApplication {
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
             return response.body().string();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return "Error occurred: " + e.getMessage();
         }
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(SpringSsoGoogleApplication.class, args);
     }
 
 }
